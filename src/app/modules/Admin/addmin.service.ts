@@ -1,9 +1,14 @@
 import { Prisma, PrismaClient } from "@prisma/client";
+import { adminSearchFileds } from "./admin.constant";
+import { paginationHelpers } from "../../../helpers/paginationHelpers";
+import { prisma } from "../../../Shared/prisma";
 
-const prisma = new PrismaClient();
+const getAllDBFormDB = async (param: any, options: any) => {
+  const { searchTerm, ...filterData } = param;
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelpers.calculatePagination(options);
 
-const getAllDBFormDB = async (param: any) => {
-  console.log({ param });
+  // console.log(filterData);
   const andConditions: Prisma.AdminWhereInput[] = [];
 
   //  [
@@ -21,10 +26,10 @@ const getAllDBFormDB = async (param: any) => {
   //         },
   //       ],
 
-  const adminSearch = ["name", "email"];
+  // const adminSearch = ["name", "email"];
   if (param.searchTerm) {
     andConditions.push({
-      OR: adminSearch.map((filed) => ({
+      OR: adminSearchFileds.map((filed) => ({
         [filed]: {
           contains: param.searchTerm,
           mode: "insensitive",
@@ -33,13 +38,29 @@ const getAllDBFormDB = async (param: any) => {
     });
   }
 
-  const whereConditions: Prisma.AdminWhereInput = { AND: andConditions };
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
 
+  const whereConditions: Prisma.AdminWhereInput = { AND: andConditions };
   const result = prisma.admin.findMany({
     where: whereConditions,
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : { createdAt: "desc" },
   });
-  console.dir(andConditions, { dept: "infinity" });
-
+  // console.dir(andConditions, { dept: "infinity" });
   return result;
 };
 

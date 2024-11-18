@@ -1,12 +1,16 @@
-import { Prisma, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { AdminService } from "./addmin.service";
+import pick from "../../../Shared/pick";
+import { adminfilterableFilds } from "./admin.constant";
 
 const getAllAdminFromDB = async (req: Request, res: Response) => {
   // console.log(req.query);
   try {
-    const result = await AdminService.getAllDBFormDB(req.query);
-
+    // const filters = req.query;
+    const filters = pick(req.query, adminfilterableFilds);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    console.log(options);
+    const result = await AdminService.getAllDBFormDB(filters, options);
     res.status(200).json({
       success: true,
       message: "Admin retrive success",
