@@ -13,45 +13,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model User{
-  id String @default(uuid())
-  email String @unique
-  password String 
-  role UserRole
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  password          String
+  role              UserRole
   needPassowordChange Boolean @default(true)
-  status UserStatus @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  status            UserStatus @default(ACTIVE)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  admin             Admin?
   @@map("users")
-  admin Admin?
 }
-model Admin {
-  id String @default(uuid())
-name String 
-email String @unique 
- profilePhoto  String?
-  contactNumber String?
-  isDeleted     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now())
-user User @relation(fields: [email], references: [email])
 
-@@map("admins")
+model Admin {
+  id            String  @id @default(uuid())
+  name          String
+  email         String  @unique
+  profilePhoto  String?
+  contactNumber String?
+  isDeleted     Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User    @relation(fields: [email], references: [email])
+  @@map("admins")
 }
 
 enum UserRole {
   SUPER_ADMIN
-  ADMIN 
+  ADMIN
   DOCTOR
   PATIENT
+}
 
-}
 enum UserStatus {
-  ACTIVE 
+  ACTIVE
   BLOCKED
+  DELETED
 }
-// ------------ 
 
 
 

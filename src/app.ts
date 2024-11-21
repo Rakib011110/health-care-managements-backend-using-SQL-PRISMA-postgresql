@@ -1,7 +1,8 @@
-import express, { Application, Request, Response } from "express";
+import express, { Application, NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { userRoutes } from "./app/modules/User/user.routes";
-import { AdminRouter } from "./app/modules/Admin/admin.routes";
+import routers from "./app/routes";
+import globalerrorHandler from "./app/middlewares/globalErrorHandler";
+import { StatusCodes } from "http-status-codes";
 
 const app: Application = express();
 
@@ -15,7 +16,19 @@ app.get("/", (req: Request, res: Response) => {
     message: "PH HEALTCARES SERVER",
   });
 });
-app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/admin", AdminRouter);
+app.use("/api/v1/", routers);
+// app.use("/api/v1/admin", AdminRouter);
+app.use(globalerrorHandler);
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  res.status(StatusCodes.NOT_FOUND).json({
+    success: false,
+    message: "API NOT FOUND",
+    error: {
+      path: req.originalUrl,
+      message: "your requested path is not found",
+    },
+  });
+});
 
 export default app;
