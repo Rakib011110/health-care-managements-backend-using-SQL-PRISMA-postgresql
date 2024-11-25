@@ -3,14 +3,22 @@ import { AdminController } from "./admin.controller";
 import { AnyZodObject, z } from "zod";
 import { validateRequest } from "../../middlewares/validationsRequest";
 import { adminValidationSchemas, update } from "./admin.validations";
+import { auth } from "../../middlewares/auth";
+import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 
-router.get("/", AdminController.getAllAdminFromDB);
+router.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+  AdminController.getAllAdminFromDB
+);
 
 router.get("/:id", AdminController.getByIdFromDb);
 router.patch(
   "/:id",
+  auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),
+
   validateRequest(adminValidationSchemas.update),
   AdminController.updateIntoDb
 );

@@ -9,7 +9,7 @@ const globalerrorHandler = (
 ) => {
   res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
     success: false,
-    message: err.name || "something went wront",
+    message: err.message || "something went wront",
     error: err,
   });
 };
