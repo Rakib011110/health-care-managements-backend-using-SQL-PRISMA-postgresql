@@ -16,6 +16,16 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // for Cloudinary code
+
+(async function () {
+  // Configuration
+  cloudinary.config({
+    cloud_name: "dqp2vi7h1",
+    api_key: "492939945165266",
+    api_secret: "VG2cTAH6T98FWCa9Nk8MtAxnju8",
+  });
+})();
+
 export const uploadToCloudinary = async (
   file: IFile
 ): Promise<ICloudinaryResponse | undefined> => {

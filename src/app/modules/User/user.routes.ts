@@ -5,20 +5,24 @@ import { v2 as cloudinary } from "cloudinary";
 
 import { fileUploader } from "../../../helpers/fileUploader";
 import { userValidation } from "./user.validations";
+import { UserRole } from "@prisma/client";
+import { DoctorValidation } from "../Doctor/doctor.validation";
+import { validateRequest } from "../../middlewares/validationsRequest";
 
 const router = express.Router();
 
-(async function () {
-  // Configuration
-  cloudinary.config({
-    cloud_name: "dqp2vi7h1",
-    api_key: "492939945165266",
-    api_secret: "VG2cTAH6T98FWCa9Nk8MtAxnju8",
-  });
-})();
-
-router.post(
+router.get(
   "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  userController.getAllAdminFromDB
+);
+router.get(
+  "/me",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  userController.getMyProfile
+);
+router.post(
+  "/create-admin",
 
   auth("ADMIN", "SUPER_ADMIN", "DOCTOR"),
   fileUploader.upload.single("file"),
@@ -26,6 +30,42 @@ router.post(
   (req: Request, res: Response, next: NextFunction) => {
     req.body = userValidation.createAdmin.parse(JSON.parse(req.body.data));
     return userController.createAdmin(req, res, next);
+  }
+);
+
+router.post(
+  "/create-doctor",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  fileUploader.upload.single("file"),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.createDoctor.parse(JSON.parse(req.body.data));
+    return userController.createDoctor(req, res, next);
+  }
+);
+
+router.post(
+  "/create-patient",
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = userValidation.createPatient.parse(JSON.parse(req.body.data));
+    return userController.createPatient(req, res, next);
+  }
+);
+router.patch(
+  "/:id/status",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  validateRequest(userValidation.updateStatus),
+  userController.changeProfileStatus
+);
+
+router.patch(
+  "/update-my-profile",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR, UserRole.PATIENT),
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    return userController.updateMyProfie(req, res, next);
   }
 );
 

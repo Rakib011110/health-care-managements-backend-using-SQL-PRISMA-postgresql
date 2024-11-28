@@ -23,7 +23,10 @@ model User {
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   admin             Admin?
+  doctor            Doctor?
+ patient            Patient?
   @@map("users")
+
 }
 
 model Admin {
@@ -39,6 +42,81 @@ model Admin {
   @@map("admins")
 }
 
+
+
+model Doctor {
+  id                  String              @id @default(uuid())
+  name                String
+  email               String              @unique
+  profilePhoto        String?
+  contactNumber       String
+  address             String?
+  registrationNumber  String
+  experience          Int                 @default(0)
+  gender              Gender?
+  appointmentFee      Int
+  qualification       String
+  currentWorkingPlace String
+  designation         String
+  isDeleted           Boolean             @default(false)
+  averageRating       Float               @default(0.0)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  user                User                @relation(fields: [email], references: [email])
+
+
+  @@map("doctors") 
+}
+
+model Patient {
+  id            String   @id @unique @default(uuid())
+  email         String   @unique
+  name          String
+  profilePhoto  String?
+  contactNumber String?
+  address       String?
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user              User               @relation(references: [email], fields: [email])
+  
+  
+  }
+
+
+
+// -----------------
+model Specialties {
+  id                String              @id @default(uuid())
+  title             String
+  icon              String
+  // doctorSpecialties DoctorSpecialties[]
+
+  @@map("specialties")
+}
+
+model DoctorSpecialties {
+  specialitiesId String
+  // specialities   Specialties @relation(fields: [specialitiesId], references: [id])
+
+  doctorId String
+
+  @@id([specialitiesId, doctorId])
+  @@map("doctor_specialties")
+}
+
+
+
+// Enum for Gender
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+
+
 enum UserRole {
   SUPER_ADMIN
   ADMIN
@@ -51,6 +129,3 @@ enum UserStatus {
   BLOCKED
   DELETED
 }
-
-
-

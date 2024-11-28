@@ -1,4 +1,4 @@
-import { UserRole, UserStatus } from "@prisma/client";
+import { Gender, UserRole, UserStatus } from "@prisma/client";
 import { z } from "zod";
 
 const createAdmin = z.object({
@@ -37,7 +37,7 @@ const createDoctor = z.object({
       required_error: "Reg number is required",
     }),
     experience: z.number().optional(),
-    // gender: z.enum([Gender.MALE, Gender.FEMALE]),
+    gender: z.enum([Gender.MALE, Gender.FEMALE]),
     appointmentFee: z.number({
       required_error: "appointment fee is required",
     }),
